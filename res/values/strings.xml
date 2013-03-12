@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Signal Analysis Tests</string>
+    <string name="main_title">Signal Analysis</string>
+    <string name="track_label">Track</string>
+    <string name="signal_label">Signal</string>
+    <string name="settings_label">Settings&#8230;</string>
+    <string name="about_label">About</string>
+    <string name="exit_label">Exit</string>
+    
+    <string name="about_title">About This Program</string>
+    <string name="about_text">\ This program was written and developed by <a href="http://edgeorgedev.co.uk">Ed George</a> a Computer Science student from the University of Nottingham.
+        \n\n\ Blah blah Blah blah Blah blah Blah blah \n\n\ Blah blah Blah blah Blah blah Blah blah \n\n\ Blah blah Blah blah Blah blah Blah blah \n\n\ Blah blah Blah blah Blah blah Blah blah \n\n\ For more information please contact Ed G. at <i>psyeg@nottingham.ac.uk</i>
+         </string>
+         
+    <string name="settings_title">Signal Analysis Settings</string>
+    <string name="settings_shortcut">s</string>
+    
+    <string name="db_label">Read From DB</string>
+    <string name="readJ">Read JSON Data</string>
+    <string name="readResult">JSON Results</string>
+    
+    <string name="test_title">Test Title</string>
+    <string name="a">On</string>
+    <string name="b">Off</string>
+    
+    <string name="gps_title">Use fine GPS tracking</string>
+    <string name="gps_summary">Use more a precise GPS service for tracking</string>
+    
+    <string name="map_name">Signal Map</string>
+
+</resources>

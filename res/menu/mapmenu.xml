@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    
+    <item
+        android:id="@+id/mapbut1"
+        android:icon="@drawable/map"
+        android:showAsAction="ifRoom"
+        android:title="Road/Normal View"/>
+    <item
+        android:id="@+id/mapbut2"
+        android:icon="@drawable/globe"
+        android:showAsAction="ifRoom"
+        android:title="Satellite View"/>
+
+</menu>

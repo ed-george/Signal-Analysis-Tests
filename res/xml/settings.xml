@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <CheckBoxPreference
+        android:key="gps"
+        android:title="@string/gps_title"
+        android:summary="@string/gps_summary"
+        android:defaultValue="true" />
+    <SwitchPreference
+        android:key="test"
+        android:title="@string/test_title"
+        android:switchTextOn="@string/a"
+        android:switchTextOff="@string/b" />
+</PreferenceScreen>

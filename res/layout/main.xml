@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@color/background"
+    android:gravity="center"
+    android:padding="30dip" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_title"
+        android:layout_marginBottom="25dip"
+        android:textSize="24.5sp"
+        android:gravity="center"  />
+    
+        
+    <Button 
+        android:id="@+id/track_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/track_label"
+        
+        />
+    
+    <Button 
+        android:id="@+id/signal_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/signal_label"
+        
+        />
+    
+    <Button 
+        android:id="@+id/about_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/about_label"
+        
+        />
+    
+    <Button 
+        android:id="@+id/db_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/db_label"
+        
+        />
+    
+    
+    <Button 
+        android:id="@+id/exit_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/exit_label"
+        
+        />
+
+</LinearLayout>

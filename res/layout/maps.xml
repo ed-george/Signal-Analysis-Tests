@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ android:layout_width="fill_parent"
+ android:layout_height="fill_parent"     
+ android:orientation="vertical" >          
+
+ <FrameLayout android:id="@+id/frame"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:layout_weight="1" >     
+
+    <com.google.android.maps.MapView
+        android:id="@+id/map" 
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent" 
+        android:enabled="true" 
+        android:clickable="true"             
+        android:apiKey="0TyHvWzGuNU8wbJ5nlAA4nRhOGbE2di9EmXL1-Q"/>
+
+ </FrameLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			android:layout_width="fill_parent"
+			android:layout_height="250dip"
+			android:id="@+id/graph1"
+			 />
+
+<!-- <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			android:layout_width="fill_parent"
+			android:layout_height="250dip"
+			android:id="@+id/graph1"
+			 /> -->
+
+
+	</LinearLayout>
+
+
+<!-- <LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/frame"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    
+    <com.google.android.maps.MapView
+        android:id="@+id/map"
+        android:apiKey="0TyHvWzGuNU8wbJ5nlAA4nRhOGbE2di9EmXL1-Q"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:clickable="true"
+        />
+    
+    
+    
+</LinearLayout> -->
