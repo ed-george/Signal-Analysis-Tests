@@ -12,5 +12,12 @@
         android:icon="@drawable/globe"
         android:showAsAction="ifRoom"
         android:title="Satellite View"/>
+    
+     <item
+        android:id="@+id/mapbut3"
+        android:icon="@drawable/ant"
+        android:showAsAction="ifRoom"
+        android:title="Locate Basestation"/>
+    
 
 </menu>

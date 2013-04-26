@@ -72,5 +72,6 @@ public class MapOverlay extends ItemizedOverlay<OverlayItem> {
 		if(x >= 22 && x <= 33){
 			draw = R.drawable.full;
 		}
+		
 	}
 }

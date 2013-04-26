@@ -5,6 +5,7 @@
     <string name="main_title">Signal Analysis</string>
     <string name="track_label">Track</string>
     <string name="signal_label">Signal</string>
+     <string name="graph_label">Graph</string>
     <string name="settings_label">Settings&#8230;</string>
     <string name="about_label">About</string>
     <string name="exit_label">Exit</string>

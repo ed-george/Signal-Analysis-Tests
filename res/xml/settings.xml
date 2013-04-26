@@ -12,4 +12,5 @@
         android:title="@string/test_title"
         android:switchTextOn="@string/a"
         android:switchTextOff="@string/b" />
+ 
 </PreferenceScreen>

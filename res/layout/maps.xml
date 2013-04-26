@@ -6,7 +6,7 @@
 
  <FrameLayout android:id="@+id/frame"
       android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
+      android:layout_height="0dp"
       android:layout_weight="1" >     
 
     <com.google.android.maps.MapView
@@ -18,17 +18,13 @@
         android:apiKey="0TyHvWzGuNU8wbJ5nlAA4nRhOGbE2di9EmXL1-Q"/>
 
  </FrameLayout>
+
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 			android:layout_width="fill_parent"
 			android:layout_height="250dip"
 			android:id="@+id/graph1"
-			 />
-
-<!-- <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			android:layout_width="fill_parent"
-			android:layout_height="250dip"
-			android:id="@+id/graph1"
-			 /> -->
+			 /> 
 
 
 	</LinearLayout>
