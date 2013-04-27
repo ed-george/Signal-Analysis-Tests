@@ -55,9 +55,9 @@ public class Map extends MapActivity implements LocationListener
 	private final Handler mHandler = new Handler();
 	private Runnable mTimer1;
 	private GraphView graphView;
-	private GraphViewSeries exampleSeries1; 
+	private GraphViewSeries graphViewData; 
 	private double lastXValue = 1.0d;
-	private int duration = 2000; //default
+	private int duration = 500; //default
 	private SensorManager mSensorManager;
 	private ShakeListener mSensorListener;
 	private final String[] empty = new String[] {""};
@@ -69,7 +69,7 @@ public class Map extends MapActivity implements LocationListener
 	private static final String TAG_TYPE = "Type";
 	private String url = "http://houseready.co.uk/json.php";
 	// contacts JSONArray
-	JSONArray locations = null;
+	private JSONArray locations = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -93,58 +93,28 @@ public class Map extends MapActivity implements LocationListener
 		tm.listen(tl,PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 
 		man = (LocationManager) getSystemService(LOCATION_SERVICE);
-		
+
 		man.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
 
 		mapView.invalidate();
 
-		//INSERTED HERE
-
-		// init example series data
-		exampleSeries1 = new GraphViewSeries(new GraphViewData[] {
+		graphViewData = new GraphViewSeries(new GraphViewData[] {
 				new GraphViewData(1, 0.0d) //start at 0,0 -  change to getSIG()??
 
 		});
 
-		// graph with dynamically genereated horizontal and vertical labels
-		//		if (getIntent().getStringExtra("type").equals("bar")) {
-		//			graphView = new BarGraphView(
-		//					this // context
-		//					, "Mobile Signal Analysis" // heading
-		//					);
-		//		} else {
-		//			graphView = new LineGraphView(
-		//					this // context
-		//					, "Mobile Signal Analysis" // heading
-		//					);
-		//			((LineGraphView) graphView).setDrawBackground(true);
-		//		}
-
 		graphView = new LineGraphView(
-				this // context
+				this 
 				, "Mobile Signal Analysis" // heading
 				);
+
 		((LineGraphView) graphView).setDrawBackground(true);
-		graphView.addSeries(exampleSeries1); // data
+		graphView.addSeries(graphViewData); // data
 
 		LinearLayout layout = (LinearLayout) findViewById(R.id.graph1);
-		//		graphView.setVerticalLabels(new String[] {"99", "0"});
-		//		if (getIntent().getStringExtra("fixed").equals("true")){
-		graphView.setManualYAxisBounds(32.0, 0.0);
-		//		}
 
-		//		if (getIntent().getStringExtra("speed").equals("fast")){
-		duration = 500;
-		//showToastMsg = false;
-		//		}else{
-		//			duration = 2000;
-		//			//showToastMsg = true;
-		//		}
-		graphView.setHorizontalLabels(new String[] {"Time"});
+		graphView.setManualYAxisBounds(32.0, 0.0);
 		graphView.setViewPort(0,50);
-		//graphView.setLegendAlign(LegendAlign.BOTTOM);  
-		//graphView.setShowLegend(true);
-		//graphView.setCameraDistance(distance)
 		graphView.setHorizontalLabels(new String[] {""});
 		graphView.setScrollable(true);
 		layout.addView(graphView);
@@ -160,7 +130,7 @@ public class Map extends MapActivity implements LocationListener
 				Handler handler = new Handler(); 
 				handler.postDelayed(new Runnable() { 
 					public void run() { 
-						exampleSeries1.resetData(new GraphViewData[] {
+						graphViewData.resetData(new GraphViewData[] {
 								new GraphViewData(1, getSIG())});
 
 						Toast.makeText(Map.this, "Data Reset", Toast.LENGTH_LONG).show();
@@ -176,10 +146,9 @@ public class Map extends MapActivity implements LocationListener
 	}
 
 	public void onLocationChanged(Location location) {
-		if(data_points == 0){
-			lastKnownLat = location.getLatitude();
-			lastKnownLon = location.getLongitude();
-		}
+
+		lastKnownLat = location.getLatitude();
+		lastKnownLon = location.getLongitude();
 
 		if (shouldAddOverlay(location)){
 			GeoPoint point = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
@@ -198,6 +167,8 @@ public class Map extends MapActivity implements LocationListener
 				itemiseOverlay.setIconOverlay(cdma);	
 			}
 
+
+
 			//		OverlayItem newOver = new OverlayItem(point,"Test Point: " + ++ data_points , "Lat: " + Double.toString(location.getLatitude()) + "\nLon: " + Double.toString(location.getLongitude()) + "\nGSM Signal: " + gsm );
 			OverlayItem newOver = new OverlayItem(point,"Point: " + ++data_points , makeString(gsm, cdma, location) );
 
@@ -214,7 +185,7 @@ public class Map extends MapActivity implements LocationListener
 			return true;
 		}
 
-		if (getDist(location) >= 10.0f){
+		if (getDist(location, lastKnownLat, lastKnownLon) >= 10.0f){
 
 			return true;
 
@@ -223,14 +194,12 @@ public class Map extends MapActivity implements LocationListener
 		return false;
 	}
 
-	public float getDist(Location location){
+	public float getDist(Location location, double lat, double lon){
 
 		Location dest = new Location(""); //DummyLocation
-		dest.setLatitude(lastKnownLat);
-		dest.setLongitude(lastKnownLon);
+		dest.setLatitude(lat);
+		dest.setLongitude(lon);
 		Log.i("DISTANCE", Float.toString(location.distanceTo(dest)));
-		lastKnownLat = location.getLatitude();
-		lastKnownLon = location.getLongitude();
 		return location.distanceTo(dest);
 
 
@@ -289,7 +258,7 @@ public class Map extends MapActivity implements LocationListener
 		mTimer1 = new Runnable() {
 			public void run() {
 				lastXValue += 1d;
-				exampleSeries1.appendData(new GraphViewData(lastXValue, getSIG()), true);
+				graphViewData.appendData(new GraphViewData(lastXValue, getSIG()), true);
 				graphView.setHorizontalLabels(empty);
 				//graphView.redrawAll();
 				mHandler.postDelayed(this, duration);
@@ -359,15 +328,16 @@ public class Map extends MapActivity implements LocationListener
 			return true;
 
 		case R.id.mapbut2:
-						Toast.makeText(Map.this, "Satellite View", Toast.LENGTH_SHORT).show();
-						if(!mapView.isSatellite()){
-							mapView.setSatellite(true);
-						}
+			Toast.makeText(Map.this, "Satellite View", Toast.LENGTH_SHORT).show();
+			if(!mapView.isSatellite()){
+				mapView.setSatellite(true);
+			}
 			return true;
-			
+
 		case R.id.mapbut3:
 			DownloadJSON task = new DownloadJSON();
 			String u = url + "?lat=" + Double.toString(lastKnownLat) +"&lon="+ Double.toString(lastKnownLon); //+"&dif=0.0125"; 
+
 			//			Toast.makeText(getApplicationContext(), u, Toast.LENGTH_LONG).show();
 			task.execute(new String[] { u });
 			return true;
@@ -428,7 +398,7 @@ public class Map extends MapActivity implements LocationListener
 			JSONparser jParser = new JSONparser();
 
 			// getting JSON string from URL
-			JSONObject json = jParser.getJSONFromUrl(urls[0]);
+			JSONObject json = jParser.downloadJSON(urls[0]);
 
 			try {
 				// Getting Array of Contacts
@@ -516,17 +486,21 @@ public class Map extends MapActivity implements LocationListener
 				Toast.makeText(getApplicationContext(), "Found " + Integer.toString(result) + " Basestations", Toast.LENGTH_SHORT).show();
 			}
 		}
-		
-		
+
+
 		private String makeBaseStationInfo(String type, String op, String height, float _lat, float _lon){
 			String s = "";
 			s += "Operator: " + op + "\n";
 			s += "Type: " + type + "\n";
 			s += "Height: " + height + "m\n";
 			s += "Location: " + Float.toString(_lat) + "," + Float.toString(_lon);
+			Location l = new Location("");
+			l.setLatitude(_lat);
+			l.setLongitude(_lon);
+			s += "\nDistance: " + Integer.toString(Math.round(getDist(l, lastKnownLat, lastKnownLon))) +"m (Approx)";  
 			return s;
 		}
-		
+
 	}
 
 

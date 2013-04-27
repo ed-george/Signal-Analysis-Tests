@@ -30,9 +30,6 @@ public class SignalProgram extends Activity implements OnClickListener {
 		View exitButton = findViewById(R.id.exit_button);
 		exitButton.setOnClickListener(this);
 
-		View sigButton = findViewById(R.id.signal_button);
-		sigButton.setOnClickListener(this);
-
 		View trackButton = findViewById(R.id.track_button);
 		trackButton.setOnClickListener(this);
 		
@@ -70,14 +67,6 @@ public class SignalProgram extends Activity implements OnClickListener {
 				Intent n = new Intent(this, Map.class);
 				startActivity(n);
 			}
-			break;
-
-		case R.id.signal_button:
-			if(DEBUG){
-				Log.i("SignalAnalysis", "Open Signal");
-			}
-			Intent n = new Intent(this, SignalP.class);
-			startActivity(n);
 			break;
 		
 		

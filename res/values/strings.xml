@@ -3,24 +3,24 @@
 
     <string name="app_name">Signal Analysis Tests</string>
     <string name="main_title">Signal Analysis</string>
-    <string name="track_label">Track</string>
-    <string name="signal_label">Signal</string>
+    <string name="track_label">Live Signal Map</string>
+
      <string name="graph_label">Graph</string>
     <string name="settings_label">Settings&#8230;</string>
     <string name="about_label">About</string>
     <string name="exit_label">Exit</string>
     
-    <string name="about_title">About This Program</string>
+    <string name="about_title">About This App!</string>
     <string name="about_text">\ This program was written and developed by <a href="http://edgeorgedev.co.uk">Ed George</a> a Computer Science student from the University of Nottingham.
-        \n\n\ Blah blah Blah blah Blah blah Blah blah \n\n\ Blah blah Blah blah Blah blah Blah blah \n\n\ Blah blah Blah blah Blah blah Blah blah \n\n\ Blah blah Blah blah Blah blah Blah blah \n\n\ For more information please contact Ed G. at <i>psyeg@nottingham.ac.uk</i>
+        \n\n\ Thanks to Jonas Gehring for creating the Graph Libraries \n\n\ A Special thanks to Steven Bagley, Matt Sharp, Sam Bradbury and others that helped me create this application \n\n\ For more information please contact Ed G. at <i>psyeg@nottingham.ac.uk</i>
          </string>
          
     <string name="settings_title">Signal Analysis Settings</string>
     <string name="settings_shortcut">s</string>
     
-    <string name="db_label">Read From DB</string>
-    <string name="readJ">Read JSON Data</string>
-    <string name="readResult">JSON Results</string>
+    <string name="db_label">Access Mast Data</string>
+    <string name="readJ">Find Masts&#8230;</string>
+    <string name="readResult">Database Results</string>
     
     <string name="test_title">Test Title</string>
     <string name="a">On</string>

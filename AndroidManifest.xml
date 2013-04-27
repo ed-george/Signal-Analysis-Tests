@@ -31,9 +31,7 @@
          <activity android:name=".Prefs" 
             android:label="@string/settings_title"></activity>
         
-         <activity android:name=".Map" android:label="@string/map_name"></activity>
-         <activity android:name=".GraphView" android:label="@string/graph_label"></activity>
-         <activity android:name=".SignalP" android:label="@string/signal_label"></activity>
+         <activity android:name=".Map" android:label="@string/map_name"  android:screenOrientation="portrait"></activity>
          <activity android:name=".ReadDB" android:label="@string/db_label"></activity>
          <uses-library android:name="com.google.android.maps" />
         

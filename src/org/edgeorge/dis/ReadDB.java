@@ -55,8 +55,21 @@ public class ReadDB extends Activity {
 		setContentView(R.layout.db);
 		textView = (TextView) findViewById(R.id.dbText);
 
+		Criteria criteria = new Criteria();
+		final String bestProvider = locationManager.getBestProvider(criteria, false);
+		Location location = locationManager.getLastKnownLocation(bestProvider);
+		if(_lat == -1000 || _lon == -1000){
+
+			_lat = location.getLatitude();
+			_lon = location.getLongitude();
+			lat = location.getLatitude();
+			lon = location.getLongitude();
+		}
+
+		
 		loc_listener = new LocationListener() {
 			public void onLocationChanged(Location l) {
+				
 				Location old = new Location("");
 				old.setLatitude(_lat);
 				old.setLongitude(_lon);
@@ -77,17 +90,7 @@ public class ReadDB extends Activity {
 			public void onStatusChanged(String p, int status, Bundle extras) {
 			}      
 		};
-
-
-		Criteria criteria = new Criteria();
-		final String bestProvider = locationManager.getBestProvider(criteria, false);
-		Location location = locationManager.getLastKnownLocation(bestProvider);
-		if(_lat == -1000 || _lon == -1000){
-
-			lat = location.getLatitude();
-			lon = location.getLongitude();
-		}
-
+		
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,10000 ,0, loc_listener);
 
 	}
@@ -125,7 +128,7 @@ public class ReadDB extends Activity {
 			JSONparser jParser = new JSONparser();
 
 			// getting JSON string from URL
-			JSONObject json = jParser.getJSONFromUrl(urls[0]);
+			JSONObject json = jParser.downloadJSON(urls[0]);
 
 			try {
 				// Getting Array of Contacts
@@ -207,10 +210,21 @@ public class ReadDB extends Activity {
 			s += iterateMap(locationsList.get(i));
 		}
 
-		s += Double.toString(lat) + " " + Double.toString(lon);  		
+		s += Double.toString(makeDecimalPoint(lat,8)) + " " + Double.toString(makeDecimalPoint(lon,8));  		
 		return s;
 	}
 
+	
+	public double makeDecimalPoint(double d, int length){
+
+		int i = 10;
+		if(length <= 0){
+			length = 6; //default
+		}
+
+		return (double) Math.round(d * Math.pow(i,length)) / Math.pow(i,length);
+
+	}
 
 	public void readWebpage(View view) {
 		if(getDist() <= 20 && firstRun){
@@ -222,7 +236,7 @@ public class ReadDB extends Activity {
 		}else{
 			firstRun = true;
 			DownloadJSON task = new DownloadJSON();
-			String u = url + "?lat=" + Double.toString(lat) +"&lon="+ Double.toString(lon) +"&dif=0.0125";
+			String u = url + "?lat=" + Double.toString(makeDecimalPoint(lat,8)) +"&lon="+ Double.toString(makeDecimalPoint(lon,8));
 			//Toast.makeText(getApplicationContext(), u, Toast.LENGTH_LONG).show();
 			task.execute(new String[] { u });
 		}
@@ -236,7 +250,7 @@ public class ReadDB extends Activity {
 		Location l2 = new Location("");
 		l2.setLatitude(getLat());
 		l2.setLatitude(getLon());
-		return l1.distanceTo(l2);
+		return l2.distanceTo(l1);
 	}
 
 	private float getDist(){

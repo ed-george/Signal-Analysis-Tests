@@ -25,10 +25,10 @@
         />
     
     <Button 
-        android:id="@+id/signal_button"
+        android:id="@+id/db_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/signal_label"
+        android:text="@string/db_label"
         
         />
     
@@ -37,14 +37,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/about_label"
-        
-        />
-    
-    <Button 
-        android:id="@+id/db_button"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/db_label"
         
         />
     
