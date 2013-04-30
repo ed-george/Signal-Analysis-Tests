@@ -3,8 +3,8 @@ package org.edgeorge.dis;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -12,7 +12,6 @@ import org.json.JSONObject;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.location.Location;
@@ -45,157 +44,173 @@ public class Map extends MapActivity implements LocationListener
 
 {
 	private MapView mapView;
-	private MapOverlay itemiseOverlay, odg;
+	private MapOverlay locationOverlay, basestationOverlay;
 	private List<Overlay> mapOverlays;
-	private LocationManager man;
-	private int data_points = 0;
+	private LocationManager location_man;
+	private int graphdata_points = 0;
 	private TestListener tl; 
 	private TelephonyManager tm;
 	private double lastKnownLat, lastKnownLon;
 	private final Handler mHandler = new Handler();
-	private Runnable mTimer1;
+	private Runnable signalRefreshTimer;
 	private GraphView graphView;
 	private GraphViewSeries graphViewData; 
-	private double lastXValue = 1.0d;
+	private double last_x = 1.0d;
 	private int duration = 500; //default
 	private SensorManager mSensorManager;
 	private ShakeListener mSensorListener;
 	private final String[] empty = new String[] {""};
-	private static final String TAG_CONTACTS = "Locations";
-	private static final String TAG_OPERATOR = "Operator";
-	private static final String TAG_LAT = "Latitude";
-	private static final String TAG_LON = "Longitude";
-	private static final String TAG_HEIGHT = "Height";
-	private static final String TAG_TYPE = "Type";
+	private final String LOCATION = "Locations";
+	private final String OPERATOR = "Operator";
+	private final String LAT = "Latitude";
+	private final String LON = "Longitude";
+	private final String HEIGHT = "Height";
+	private final String TYPE = "Type";
 	private String url = "http://houseready.co.uk/json.php";
-	// contacts JSONArray
 	private JSONArray locations = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.maps); //Set layout
+		//Set interface layout
+		setContentView(R.layout.maps); 
 
-		mapView = (MapView) findViewById(R.id.map);       
+		//Initialize Google Map View
+		mapView = (MapView) findViewById(R.id.map);      
+		//Set Zoom Level
 		mapView.getController().setZoom(20);
+		//Set Satellite View as default
 		mapView.setSatellite(true);
+		//Give users Zoom Control
 		mapView.setBuiltInZoomControls(true);
+		//Get Overlays for map
 		mapOverlays = mapView.getOverlays();
 
 
-		Drawable drawable = this.getResources().getDrawable(R.drawable.pin);
+		//Set up overlays and graphics for Location Overlay
+		locationOverlay = new MapOverlay(this.getResources().getDrawable(R.drawable.pin), this);
+		//Set up overlays and graphics for BaseStation Overlay
+		basestationOverlay = new MapOverlay(this.getResources().getDrawable(R.drawable.ant), this);
 
-		itemiseOverlay = new MapOverlay(drawable, this);
-		odg = new MapOverlay(this.getResources().getDrawable(R.drawable.ant), this);
+		//New Signal Listener
 		tl = new TestListener();
+		//Initialize phone to use Test Listener to listen to changes in signal strength 
 		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 		tm.listen(tl,PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 
-		man = (LocationManager) getSystemService(LOCATION_SERVICE);
+		//Begin to listen to changes in location using GPS
+		location_man = (LocationManager) getSystemService(LOCATION_SERVICE);
+		location_man.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
 
-		man.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
-
+		//Redraw Map for any Overlays
 		mapView.invalidate();
 
+		//Create new GraphData series with single data point (1,0)
 		graphViewData = new GraphViewSeries(new GraphViewData[] {
-				new GraphViewData(1, 0.0d) //start at 0,0 -  change to getSIG()??
+				new GraphViewData(1, 0.0d) 
 
 		});
 
-		graphView = new LineGraphView(
-				this 
-				, "Mobile Signal Analysis" // heading
-				);
+		//Create new Line Graph titled "Current Signal Strength"
+		graphView = new LineGraphView(this, "Current Signal Strength");
 
+		//Draw blue background underneath line graph
 		((LineGraphView) graphView).setDrawBackground(true);
-		graphView.addSeries(graphViewData); // data
 
+		//Add the associated data series to the graph
+		graphView.addSeries(graphViewData);
+
+		//Locate the graph's location in layout from layout file
 		LinearLayout layout = (LinearLayout) findViewById(R.id.graph1);
 
+		//Add graph specific params
 		graphView.setManualYAxisBounds(32.0, 0.0);
 		graphView.setViewPort(0,50);
 		graphView.setHorizontalLabels(new String[] {""});
 		graphView.setScrollable(true);
+
+		// Add the Graph to the Layout
 		layout.addView(graphView);
 
-
+		//Set up the manager of listener to sensors
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		//Create new listener for 'Shakes'
 		mSensorListener = new ShakeListener();   
 
+		//Handle Shake
 		mSensorListener.setOnShakeListener(new ShakeListener.OnShakeListener() {
 
+			//On shake, reset graph data
 			public void onShake() {
-
 				Handler handler = new Handler(); 
 				handler.postDelayed(new Runnable() { 
 					public void run() { 
+						//Reset Data Series
 						graphViewData.resetData(new GraphViewData[] {
 								new GraphViewData(1, getSIG())});
-
+						//Post message to screen telling user of Data Reset
 						Toast.makeText(Map.this, "Data Reset", Toast.LENGTH_LONG).show();
 					} 
 				}, 2000);
-
-
 			}});
-
-
-
 
 	}
 
 	public void onLocationChanged(Location location) {
-
-		lastKnownLat = location.getLatitude();
-		lastKnownLon = location.getLongitude();
-
+		//Called when current GPS location has changed
 		if (shouldAddOverlay(location)){
-			GeoPoint point = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
 
+			//create new location
+			GeoPoint point = new GeoPoint((int) (location.getLatitude() * 1E6), (int) (location.getLongitude() * 1E6));
+			//get phone signal data
 			int gsm = tl.getGSMSig();
 			int cdma = tl.getCDMASig();
 			Log.i("test-lat", Double.toString(location.getLatitude()));
 			Log.i("test-lon", Double.toString(location.getLongitude()));
 
-
+			//move map to current location
 			mapView.getController().animateTo(point);
 
+			//check phone type
 			if(tl.isGSMPhone()){
-				itemiseOverlay.setIconOverlay(gsm);
+				//change icon depending on signal strength
+				locationOverlay.setIconOverlay(gsm);
 			}else{
-				itemiseOverlay.setIconOverlay(cdma);	
+				locationOverlay.setIconOverlay(cdma);	
 			}
 
-
-
-			//		OverlayItem newOver = new OverlayItem(point,"Test Point: " + ++ data_points , "Lat: " + Double.toString(location.getLatitude()) + "\nLon: " + Double.toString(location.getLongitude()) + "\nGSM Signal: " + gsm );
-			OverlayItem newOver = new OverlayItem(point,"Point: " + ++data_points , makeString(gsm, cdma, location) );
-
-			itemiseOverlay.addOverlay(newOver);
-
-			mapOverlays.add(itemiseOverlay);
+			//Create new overlay and information it displays in it's dialog
+			OverlayItem newOver = new OverlayItem(point,"Point: " + ++graphdata_points , makeString(gsm, cdma, location) );
+			
+			//add this overlay into overlay list
+			locationOverlay.addOverlay(newOver);
+			//add the overlays to map
+			mapOverlays.add(locationOverlay);
 		}
 
+		//update last current location known
+		lastKnownLat = location.getLatitude();
+		lastKnownLon = location.getLongitude();
 	}
 
 
 	private boolean shouldAddOverlay(Location location) {
-		if (data_points <= 0){
+		//Should a location Overlay be added?
+		if (graphdata_points <= 0){
+			//If none have been placed so far
 			return true;
 		}
-
 		if (getDist(location, lastKnownLat, lastKnownLon) >= 10.0f){
-
+			//if last known location was greater than 10m away from current location 
 			return true;
-
 		}
-
+		//otherwise
 		return false;
 	}
 
 	public float getDist(Location location, double lat, double lon){
-
+		//find distance between two points
 		Location dest = new Location(""); //DummyLocation
 		dest.setLatitude(lat);
 		dest.setLongitude(lon);
@@ -208,7 +223,7 @@ public class Map extends MapActivity implements LocationListener
 
 
 	public String makeString(int gsm, int cdma, Location loc){
-
+		//Create location overlay dialog text
 		String a = "Lat: " + Double.toString(makeDecimalPoint(loc.getLatitude(), 8));
 		String b = "\nLon: " + Double.toString(makeDecimalPoint(loc.getLongitude(), 8));
 		if(tl.isGSMPhone()){
@@ -224,7 +239,7 @@ public class Map extends MapActivity implements LocationListener
 	}
 
 	public double makeDecimalPoint(double d, int length){
-
+		//Places 'length' decimal points after double d
 		int i = 10;
 		if(length <= 0){
 			length = 6; //default
@@ -238,51 +253,60 @@ public class Map extends MapActivity implements LocationListener
 	@Override
 	public void onPause(){
 		super.onPause();
-		Toast.makeText(Map.this, "OnPause()", Toast.LENGTH_SHORT).show();
-		man.removeUpdates(this);
+		//Stop updates and listeners
+		location_man.removeUpdates(this);
 		tm.listen(tl,PhoneStateListener.LISTEN_NONE);
 	}
 
 	@Override
 	public void onResume(){
 		super.onResume();
-		Toast.makeText(Map.this, "OnResume()", Toast.LENGTH_SHORT).show();
-		//FIXME onResume()
-		//Soon my dog of war
+		//Restart listeners
 		tm.listen(tl,PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-		man.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
+		location_man.requestLocationUpdates(LocationManager.GPS_PROVIDER, 10000, 0, this);
 		mSensorManager.registerListener(mSensorListener,
 				mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
 				SensorManager.SENSOR_DELAY_UI);
 
-		mTimer1 = new Runnable() {
+		//Use handler to handle a runnable and 
+		signalRefreshTimer = new Runnable() {
 			public void run() {
-				lastXValue += 1d;
-				graphViewData.appendData(new GraphViewData(lastXValue, getSIG()), true);
+				//increase the x value (time)
+				last_x += 1d;
+				//Append new latest Signal Data to graph (uses getSIG() method)
+				graphViewData.appendData(new GraphViewData(last_x, getSIG()), true);
 				graphView.setHorizontalLabels(empty);
-				//graphView.redrawAll();
+				//Update
 				mHandler.postDelayed(this, duration);
 			}
 		};
-		mHandler.postDelayed(mTimer1, duration);
-
-
-
+		mHandler.postDelayed(signalRefreshTimer, duration);
 	}
 
 	@Override
 	public void onStop(){
 		super.onStop();
-		Toast.makeText(Map.this, "OnStop()", Toast.LENGTH_SHORT).show();
-		man.removeUpdates(this);
+		//Stop updates and listeners
+		location_man.removeUpdates(this);
 		tm.listen(tl,PhoneStateListener.LISTEN_NONE);
 	}
 
 	@Override
 	public void onDestroy(){
 		super.onDestroy();
-		man.removeUpdates(this);
+		//Stop updates and listeners
+		location_man.removeUpdates(this);
 		tm.listen(tl,PhoneStateListener.LISTEN_NONE);
+	}
+
+	private double getSIG() {
+		//Uses TestListener tl
+		if(tl.isGSMPhone()){
+			//Return GSM
+			return (double) tl.getGSMSig();
+		}
+		//Return CDMA
+		return (double) tl.getCDMASig();
 	}
 
 	@Override
@@ -307,7 +331,7 @@ public class Map extends MapActivity implements LocationListener
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
-	{
+	{	//Create Options Menu
 		MenuInflater menuInflater = getMenuInflater();
 		menuInflater.inflate(R.menu.mapmenu, menu);
 		return true;
@@ -316,11 +340,12 @@ public class Map extends MapActivity implements LocationListener
 
 	public boolean onOptionsItemSelected(MenuItem item)
 	{
-
+		//Check which option button has been pressed
 		switch (item.getItemId())
 		{
 
 		case R.id.mapbut1:
+			//Turn Satellite View Off
 			Toast.makeText(Map.this, "Road View", Toast.LENGTH_SHORT).show();
 			if(mapView.isSatellite()){
 				mapView.setSatellite(false);
@@ -328,6 +353,7 @@ public class Map extends MapActivity implements LocationListener
 			return true;
 
 		case R.id.mapbut2:
+			//Turn Satellite View On
 			Toast.makeText(Map.this, "Satellite View", Toast.LENGTH_SHORT).show();
 			if(!mapView.isSatellite()){
 				mapView.setSatellite(true);
@@ -335,51 +361,29 @@ public class Map extends MapActivity implements LocationListener
 			return true;
 
 		case R.id.mapbut3:
+			//Plot local Basestations to map
+			//Create new AsyncTask to download JSON from URL
 			DownloadJSON task = new DownloadJSON();
-			String u = url + "?lat=" + Double.toString(lastKnownLat) +"&lon="+ Double.toString(lastKnownLon); //+"&dif=0.0125"; 
-
-			//			Toast.makeText(getApplicationContext(), u, Toast.LENGTH_LONG).show();
+			//Form URL
+			String u = url + "?lat=" + Double.toString(lastKnownLat) +"&lon="+ Double.toString(lastKnownLon); 
+			//Execute DownloadJSON task with URL
 			task.execute(new String[] { u });
 			return true;
 
 		default:
-			//shouldnt matter but #YOLO
+			//shouldnt be used
 			return super.onOptionsItemSelected(item);
-
 		}
 	}
-
-
-	private double getSIG() {
-		if(tl.isGSMPhone()){
-
-			/*if(showToastMsg){
-			Toast.makeText(RealtimeGraph.this, "Sig: " + Double.toString(s), Toast.LENGTH_SHORT).show();
-			}*/
-
-			//			TextView t = (TextView)findViewById(R.id.sig_text); 
-			//			t.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-			//			t.setText(Double.toString(s));
-			//
-			//			//TODO: 'Colour Algorithm'
-			//			
-			//			//------------------------
-
-			return (double) tl.getGSMSig();
-
-		}
-
-		return (double) tl.getCDMASig();
-	}
-
-
 
 	public class DownloadJSON extends AsyncTask<String, Void, Integer> {
 
+		//Spinner for download task
 		private ProgressDialog progress;
+
 		@Override
 		protected void onPreExecute() {
-
+			//Before download initiate and show progress spinner
 			progress = new ProgressDialog(Map.this);
 			progress.setMessage("Reading Database...");
 			progress.setIndeterminate(false);
@@ -391,104 +395,104 @@ public class Map extends MapActivity implements LocationListener
 		@Override
 		protected Integer doInBackground(String... urls) {
 			Log.i("JSON", "URL: " + urls[0]);
-			// Hashmap for ListView
+			//Hashmap for ListView
 			ArrayList<TreeMap<String, String>> locationsList = new ArrayList<TreeMap<String, String>>();
 
-			// Creating JSON Parser instance
+			// Creating JSON Parser
 			JSONparser jParser = new JSONparser();
 
-			// getting JSON string from URL
+			//Gewt JSON download from website - see JSONparser.java
 			JSONObject json = jParser.downloadJSON(urls[0]);
 
 			try {
-				// Getting Array of Contacts
-				locations = json.getJSONArray(TAG_CONTACTS);
+				//Get list of locations
+				locations = json.getJSONArray(LOCATION);
 
-				// looping through All Contacts
+				//loop through list
 				for(int i = 0; i < locations.length(); i++){
 					JSONObject c = locations.getJSONObject(i);
 
-					// Storing each json item in variable
+					String operator = c.getString(OPERATOR);
+					String lat = c.getString(LAT);
+					String lon = c.getString(LON);
+					String height = c.getString(HEIGHT);
+					String type = c.getString(TYPE);
 
-					String operator = c.getString(TAG_OPERATOR);
-					String lat = c.getString(TAG_LAT);
-					String lon = c.getString(TAG_LON);
-					String height = c.getString(TAG_HEIGHT);
-					String type = c.getString(TAG_TYPE);
-
-					// creating new HashMap
+					//Create Treehmap
 					TreeMap<String, String> map = new TreeMap<String, String>();
 
-					// adding each child node to HashMap key => value
-
-					map.put(TAG_TYPE, type); 
-					map.put(TAG_LAT, lat);
-					map.put("Antenna " + TAG_OPERATOR, operator);
-					map.put(TAG_LON, lon);
-					map.put(TAG_HEIGHT, height);
-
-
-
-					// adding HashList to ArrayList
+					//Add Keys and Values to TreeMap
+					map.put(TYPE, type); 
+					map.put(LAT, lat);
+					map.put("Antenna " + OPERATOR, operator);
+					map.put(LON, lon);
+					map.put(HEIGHT, height);
+					
+					//Add the TreeList to the overall ArrayList
 					locationsList.add(map);
-					//return iterateMap(map);
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 
 
-
+			//iterate through TreeMap
 			for (TreeMap<String, String> entry : locationsList)
 			{
+				//Placeholder variables for results
 				float _lat = 0;
 				float _lon = 0;
 				String op = null;
 				String type = null;
 				String height = null;
+				//Iterate through entries
 				for (Entry<String, String> finishEntry : entry.entrySet())
 				{
-					if(finishEntry.getKey().equals(TAG_LAT)){
+					//Get all entries and assign variables
+					if(finishEntry.getKey().equals(LAT)){
 						_lat = Float.parseFloat(finishEntry.getValue());
-
-					}else if(finishEntry.getKey().equals(TAG_LON)){
+					}else if(finishEntry.getKey().equals(LON)){
 						_lon = Float.parseFloat(finishEntry.getValue());
-					}else if(finishEntry.getKey().equals("Antenna " + TAG_OPERATOR)){
+					}else if(finishEntry.getKey().equals("Antenna " + OPERATOR)){
 						op = finishEntry.getValue();
-					}else if(finishEntry.getKey().equals(TAG_HEIGHT)){
+					}else if(finishEntry.getKey().equals(HEIGHT)){
 						height = finishEntry.getValue();
-					}else if(finishEntry.getKey().equals(TAG_TYPE)){
+					}else if(finishEntry.getKey().equals(TYPE)){
 						type = finishEntry.getValue();
 					}
 				}
 
+				//Create new overlay!
 				GeoPoint point = new GeoPoint((int) (_lat * 1E6), (int) (_lon * 1E6));
 				OverlayItem newOver = new OverlayItem(point,"Basestation" , makeBaseStationInfo(type, op, height, _lat, _lon));
-				odg.addOverlay(newOver);
-				mapOverlays.add(odg);
-
-
+				//Add to basestation overlay list
+				basestationOverlay.addOverlay(newOver);
+				//Add to map
+				mapOverlays.add(basestationOverlay);
 				Log.i("Finding BS", "Added: " + Float.toString(_lat) + " " + Float.toString(_lon));
 			}
 
-
+			//Return number of base stations founds
 			return locationsList.size();
 
 		}
 
 		@Override
 		protected void onPostExecute(Integer result) {
-
+			//Stop spinner as download complete
 			progress.dismiss();
 			if(result == 0){
+				//Couldnt find any
 				Toast.makeText(getApplicationContext(), "Sorry! We couldn't find any...", Toast.LENGTH_SHORT).show();
 			}{
+				//Alert user of how many results found
 				Toast.makeText(getApplicationContext(), "Found " + Integer.toString(result) + " Basestations", Toast.LENGTH_SHORT).show();
 			}
 		}
 
 
 		private String makeBaseStationInfo(String type, String op, String height, float _lat, float _lon){
+			//Make text for basestation overlay dialog
 			String s = "";
 			s += "Operator: " + op + "\n";
 			s += "Type: " + type + "\n";

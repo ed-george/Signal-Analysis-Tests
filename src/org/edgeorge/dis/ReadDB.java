@@ -16,26 +16,23 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class ReadDB extends Activity {
+	private static final int MIN_DIST = 20;
 	private TextView textView;
 	private String url = "http://houseready.co.uk/json.php";
-
-	// JSON Node names
-	//private static final String TAG_ID = "Id"; 
-	//Unused 
-	private static final String TAG_CONTACTS = "Locations";
-	private static final String TAG_OPERATOR = "Operator";
-	private static final String TAG_LAT = "Latitude";
-	private static final String TAG_LON = "Longitude";
-	private static final String TAG_HEIGHT = "Height";
-	private static final String TAG_TYPE = "Type";
-	private static final String TAG_BAND = "Band";
-	private static final String TAG_DIST = "Approx Distance";
-	// contacts JSONArray
+	private static final String LOCATION = "Locations";
+	private static final String OPERATOR = "Operator";
+	private static final String LAT = "Latitude";
+	private static final String LON = "Longitude";
+	private static final String HEIGHT = "Height";
+	private static final String TYPE = "Type";
+	private static final String BAND = "Band";
+	private static final String DIST = "Approx Distance";
 	JSONArray locations = null;
 
 	private double lat;
@@ -66,10 +63,10 @@ public class ReadDB extends Activity {
 			lon = location.getLongitude();
 		}
 
-		
+
 		loc_listener = new LocationListener() {
 			public void onLocationChanged(Location l) {
-				
+
 				Location old = new Location("");
 				old.setLatitude(_lat);
 				old.setLongitude(_lon);
@@ -90,7 +87,7 @@ public class ReadDB extends Activity {
 			public void onStatusChanged(String p, int status, Bundle extras) {
 			}      
 		};
-		
+
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,10000 ,0, loc_listener);
 
 	}
@@ -106,10 +103,12 @@ public class ReadDB extends Activity {
 
 	public class DownloadJSON extends AsyncTask<String, Void, String> {
 
+		//Spinner for download task
 		private ProgressDialog progress;
+
 		@Override
 		protected void onPreExecute() {
-
+			//Before download initiate and show progress spinner
 			progress = new ProgressDialog(ReadDB.this);
 			progress.setMessage("Reading Database...");
 			progress.setIndeterminate(false);
@@ -120,57 +119,47 @@ public class ReadDB extends Activity {
 
 		@Override
 		protected String doInBackground(String... urls) {
-
-			// Hashmap for ListView
+			Log.i("JSON", "URL: " + urls[0]);
+			//Hashmap for ListView
 			ArrayList<TreeMap<String, String>> locationsList = new ArrayList<TreeMap<String, String>>();
 
-			// Creating JSON Parser instance
+			// Creating JSON Parser
 			JSONparser jParser = new JSONparser();
 
-			// getting JSON string from URL
+			//Gewt JSON from download
 			JSONObject json = jParser.downloadJSON(urls[0]);
 
 			try {
-				// Getting Array of Contacts
-				locations = json.getJSONArray(TAG_CONTACTS);
+				//Get list of locations
+				locations = json.getJSONArray(LOCATION);
 
-				// looping through All Contacts
+				//loop through list
 				for(int i = 0; i < locations.length(); i++){
 					JSONObject c = locations.getJSONObject(i);
 
-					// Storing each json item in variable
+					String operator = c.getString(OPERATOR);
+					String lat = c.getString(LAT);
+					String lon = c.getString(LON);
+					String height = c.getString(HEIGHT);
+					String type = c.getString(TYPE);
 
-					String operator = c.getString(TAG_OPERATOR);
-					String lat = c.getString(TAG_LAT);
-					String lon = c.getString(TAG_LON);
-					String height = c.getString(TAG_HEIGHT);
-					String type = c.getString(TAG_TYPE);
-					String band = c.getString(TAG_BAND);
-
-					// creating new HashMap
+					//Create Treehmap
 					TreeMap<String, String> map = new TreeMap<String, String>();
 
-					// adding each child node to HashMap key => value
+					//Add Keys and Values to TreeMap
+					map.put(TYPE, type); 
+					map.put(LAT, lat);
+					map.put("Antenna " + OPERATOR, operator);
+					map.put(LON, lon);
+					map.put(HEIGHT, height);
 
-					map.put(TAG_TYPE, type); 
-					map.put(TAG_BAND, band); 
-					map.put(TAG_LAT, lat);
-					map.put("Antenna " + TAG_OPERATOR, operator);
-					map.put(TAG_LON, lon);
-					map.put(TAG_HEIGHT, height); 
-
-					float x = Float.parseFloat(lat);
-					float y = Float.parseFloat(lon);
-
-					map.put(TAG_DIST, Integer.toString((int) Math.round(getDist(x,y))) + "m");
-
-					// adding HashList to ArrayList
+					//Add the TreeList to the overall ArrayList
 					locationsList.add(map);
-					//return iterateMap(map);
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+			//Return string of all itmes
 			return iterateArrayList(locationsList);
 
 		}
@@ -178,8 +167,9 @@ public class ReadDB extends Activity {
 		@Override
 		protected void onPostExecute(String result) {
 
+			//Stop spinner as download complete
 			progress.dismiss();
-
+			//Show outputted results in TextView
 			textView.setText(result);
 			Toast.makeText(getApplicationContext(), "Data Loaded", Toast.LENGTH_SHORT).show();
 		}
@@ -187,11 +177,12 @@ public class ReadDB extends Activity {
 
 	public static String iterateMap(TreeMap<String, String> treeMap)
 	{
+		//iterate through results and display each result and it's fields
+		
 		String s = "";
-
 		for(Entry<String, String> entry : treeMap.entrySet())
-
 		{
+			//for each result, get all keys/values and order in list line by line
 			s += entry.getKey() +" : "+ entry.getValue()+"\n";
 		}
 
@@ -214,46 +205,39 @@ public class ReadDB extends Activity {
 		return s;
 	}
 
-	
+
 	public double makeDecimalPoint(double d, int length){
 
 		int i = 10;
 		if(length <= 0){
-			length = 6; //default
+			length = 6;
 		}
-
 		return (double) Math.round(d * Math.pow(i,length)) / Math.pow(i,length);
 
 	}
 
 	public void readWebpage(View view) {
-		if(getDist() <= 20 && firstRun){
+		//Check if user is at least 20m from previous location or has been run before
+		if(getDist() <= MIN_DIST && firstRun){
 			if(_lat == -1000 || _lon == -1000){
+				//Check user has been found by GPS before running
 				Toast.makeText(getApplicationContext(), "Still trying to find you...", Toast.LENGTH_LONG).show();
 			}else{
+				//Too near from last location
 				Toast.makeText(getApplicationContext(), "Too near previous location", Toast.LENGTH_LONG).show();
 			}
 		}else{
+			//Run
 			firstRun = true;
 			DownloadJSON task = new DownloadJSON();
 			String u = url + "?lat=" + Double.toString(makeDecimalPoint(lat,8)) +"&lon="+ Double.toString(makeDecimalPoint(lon,8));
-			//Toast.makeText(getApplicationContext(), u, Toast.LENGTH_LONG).show();
 			task.execute(new String[] { u });
 		}
 	}
 
 
-	private float getDist(float lat, float lon){
-		Location l1 = new Location("");
-		l1.setLatitude(lat);
-		l1.setLatitude(lon);
-		Location l2 = new Location("");
-		l2.setLatitude(getLat());
-		l2.setLatitude(getLon());
-		return l2.distanceTo(l1);
-	}
-
 	private float getDist(){
+		//Get distance of current location vs previous location
 		if(_lat == -1000 || _lon == -1000){
 			return 0.0f;
 		}

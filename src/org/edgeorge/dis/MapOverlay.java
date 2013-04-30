@@ -44,12 +44,11 @@ public class MapOverlay extends ItemizedOverlay<OverlayItem> {
 
 	@Override
 	protected boolean onTap(int index) {
+		//Create Dialog box
 		OverlayItem item = mapOverlay.get(index);
 		AlertDialog.Builder dialog = new AlertDialog.Builder(mContext);
 		dialog.setTitle(item.getTitle());
-
 		dialog.setMessage(item.getSnippet());
-
 		dialog.setIcon(draw);
 		dialog.show();
 		return true;
@@ -58,20 +57,20 @@ public class MapOverlay extends ItemizedOverlay<OverlayItem> {
 	public void setIconOverlay(int x){
 
 		if (x == 99){
-			draw = R.drawable.map; //This will need to change
+			draw = R.drawable.map; 
+		}else{
+			if (x >= 0 && x <= 10){
+				draw = R.drawable.low;
+			}
+
+			if (x >= 11 && x <= 21){
+				draw = R.drawable.mid;
+			}
+
+			if(x >= 22){
+				draw = R.drawable.full;
+			}
 		}
 
-		if (x >= 0 && x <= 10){
-			draw = R.drawable.low;
-		}
-
-		if (x >= 11 && x <= 21){
-			draw = R.drawable.mid;
-		}
-
-		if(x >= 22 && x <= 33){
-			draw = R.drawable.full;
-		}
-		
 	}
 }

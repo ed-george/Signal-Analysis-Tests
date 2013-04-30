@@ -3,7 +3,6 @@ package org.edgeorge.dis;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -23,19 +22,23 @@ public class JSONparser {
 	private JSONObject jObject = null;
 	private String json = "";
 
-	// constructor
 	public JSONparser() {
 		Log.i("JSON Parser", "Parser Object Created");
 	}
 
+	//Download JSON from web
 	public JSONObject downloadJSON(String url) {
 
 		try {
-
+			
 			DefaultHttpClient client = new DefaultHttpClient();
+			//GET retrieves whatever information (in the form of an entity) is identified by the Request-URI
 			HttpGet httpGet = new HttpGet(url);
+			//Executes a request using the default HTTP client and processes the response using the given response handler HTTP GET
 			HttpResponse response = client.execute(httpGet);
+			//Return majority of HTTP request including some of header and full body
 			HttpEntity entity = response.getEntity();
+			//Retrieve Body
 			is = entity.getContent();           
 
 		} catch (Exception e){
@@ -45,24 +48,31 @@ public class JSONparser {
 		}
 
 		try {
+			//Read input stream from HTTP GET body
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is, "utf-8"), 8);
 			StringBuilder sb = new StringBuilder();
 			String line = null;
+			//Read in body line by line
 			while ((line = reader.readLine()) != null) {
+				//append to string builder
 				sb.append(line + "\n");
 			}
+			//close stream
 			is.close();
+			//stringbuilder contains the JSON
 			json = sb.toString();
 
-
 		} catch (Exception e) {
-			Log.e("Buffer Error", "Error converting result " + e.toString());
+			e.printStackTrace();
+			Log.e("JSON Parser", "Error during conversion");
 		}
 
 		try {
+			//Return string containing json as JSON object
 			jObject = new JSONObject(json);
 		} catch (JSONException e) { 
-			Log.e("JSON Parser", "Error parsing data " + e.toString());
+			e.printStackTrace();
+			Log.e("JSON Parser", "Error parsing as JSON");
 		}
 
 		return jObject;

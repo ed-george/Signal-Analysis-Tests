@@ -32,7 +32,10 @@ public class SignalProgram extends Activity implements OnClickListener {
 
 		View trackButton = findViewById(R.id.track_button);
 		trackButton.setOnClickListener(this);
-		
+
+		View spdButton = findViewById(R.id.st_button);
+		spdButton.setOnClickListener(this);
+
 		View dbButton = findViewById(R.id.db_button);
 		dbButton.setOnClickListener(this);
 
@@ -68,16 +71,24 @@ public class SignalProgram extends Activity implements OnClickListener {
 				startActivity(n);
 			}
 			break;
-		
-		
-	case R.id.db_button:
-		if(DEBUG){
-			Log.i("SignalAnalysis", "Open DB");
+
+
+		case R.id.db_button:
+			if(DEBUG){
+				Log.i("SignalAnalysis", "Open DB");
+			}
+			Intent n1 = new Intent(this, ReadDB.class);
+			startActivity(n1);
+			break;
+
+		case R.id.st_button:
+			if(DEBUG){
+				Log.i("SignalAnalysis", "Speed Test");
+			}
+			Intent st = new Intent(this, SpeedTest.class);
+			startActivity(st);
+			break;
 		}
-		Intent n1 = new Intent(this, ReadDB.class);
-		startActivity(n1);
-		break;
-	}
 
 	}//end onclick()
 
