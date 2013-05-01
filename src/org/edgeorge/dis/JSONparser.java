@@ -15,7 +15,7 @@ import android.util.Log;
 public class JSONparser {
 	
 	//Please note:
-	//Adapted from Tutorial by Ravi Tamada
+	//Partially adapted from Tutorial by Ravi Tamada
 	//http://www.androidhive.info/2012/01/android-json-parsing-tutorial/
 	
 	private InputStream is = null;

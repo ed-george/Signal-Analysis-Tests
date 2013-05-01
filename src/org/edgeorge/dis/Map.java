@@ -43,23 +43,28 @@ import com.jjoe64.graphview.LineGraphView;
 public class Map extends MapActivity implements LocationListener
 
 {
+	//Map related vars
 	private MapView mapView;
 	private MapOverlay locationOverlay, basestationOverlay;
 	private List<Overlay> mapOverlays;
 	private LocationManager location_man;
-	private int graphdata_points = 0;
 	private TestListener tl; 
 	private TelephonyManager tm;
-	private double lastKnownLat, lastKnownLon;
+	private double lastKnownLat, lastKnownLon; //last known location
+	
+	//Graph related vars
 	private final Handler mHandler = new Handler();
 	private Runnable signalRefreshTimer;
 	private GraphView graphView;
 	private GraphViewSeries graphViewData; 
 	private double last_x = 1.0d;
-	private int duration = 500; //default
+	private int duration = 500; //default refresh rate
+	private final String[] empty = new String[] {""};
+	private int graphdata_points = 0; //points on graph
 	private SensorManager mSensorManager;
 	private ShakeListener mSensorListener;
-	private final String[] empty = new String[] {""};
+	
+	//Database Tags
 	private final String LOCATION = "Locations";
 	private final String OPERATOR = "Operator";
 	private final String LAT = "Latitude";
@@ -182,7 +187,7 @@ public class Map extends MapActivity implements LocationListener
 
 			//Create new overlay and information it displays in it's dialog
 			OverlayItem newOver = new OverlayItem(point,"Point: " + ++graphdata_points , makeString(gsm, cdma, location) );
-			
+
 			//add this overlay into overlay list
 			locationOverlay.addOverlay(newOver);
 			//add the overlays to map
@@ -427,7 +432,7 @@ public class Map extends MapActivity implements LocationListener
 					map.put("Antenna " + OPERATOR, operator);
 					map.put(LON, lon);
 					map.put(HEIGHT, height);
-					
+
 					//Add the TreeList to the overall ArrayList
 					locationsList.add(map);
 				}
@@ -506,9 +511,6 @@ public class Map extends MapActivity implements LocationListener
 		}
 
 	}
-
-
-
 
 }
 

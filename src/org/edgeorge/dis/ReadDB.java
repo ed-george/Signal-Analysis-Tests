@@ -31,8 +31,7 @@ public class ReadDB extends Activity {
 	private static final String LON = "Longitude";
 	private static final String HEIGHT = "Height";
 	private static final String TYPE = "Type";
-	private static final String BAND = "Band";
-	private static final String DIST = "Approx Distance";
+
 	JSONArray locations = null;
 
 	private double lat;
@@ -48,29 +47,37 @@ public class ReadDB extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+		//Set layout to db layout
 		setContentView(R.layout.db);
+		//Get location manager
+		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+		//Get access to layout's text view
 		textView = (TextView) findViewById(R.id.dbText);
 
 		Criteria criteria = new Criteria();
+		//Find 'best provider' for last know location
 		final String bestProvider = locationManager.getBestProvider(criteria, false);
+		//Store last known location
 		Location location = locationManager.getLastKnownLocation(bestProvider);
 		if(_lat == -1000 || _lon == -1000){
-
+			//Store last know location
 			_lat = location.getLatitude();
 			_lon = location.getLongitude();
 			lat = location.getLatitude();
 			lon = location.getLongitude();
 		}
 
-
+		//Listen to changes in location
 		loc_listener = new LocationListener() {
 			public void onLocationChanged(Location l) {
-
+				//On location change
 				Location old = new Location("");
+				//re-create previous known location
 				old.setLatitude(_lat);
 				old.setLongitude(_lon);
+				//check distance of old location to new location
 				if(l.distanceTo(old) >= 50){
+					//If far enough away, update
 					_lat = lat;
 					_lon = lon;
 					lat = l.getLatitude();
@@ -88,6 +95,7 @@ public class ReadDB extends Activity {
 			}      
 		};
 
+		//Request updates from GPS provider
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,10000 ,0, loc_listener);
 
 	}
@@ -95,9 +103,11 @@ public class ReadDB extends Activity {
 	@Override
 	public void onPause(){
 		super.onPause();
+		
 		if(locationManager.equals(null)){
 			return;
 		}
+		//Remove listener updates
 		locationManager.removeUpdates(loc_listener);
 	}
 
@@ -207,7 +217,7 @@ public class ReadDB extends Activity {
 
 
 	public double makeDecimalPoint(double d, int length){
-
+		//Make 'length' decimal points for double d
 		int i = 10;
 		if(length <= 0){
 			length = 6;
