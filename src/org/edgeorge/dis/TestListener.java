@@ -4,7 +4,7 @@ import android.telephony.SignalStrength;
 
 
 //Test Listener
-
+//Used to get Real-Time signal info
 public class TestListener extends PhoneStateListener {
 
 	private int GSMsig = 0;
@@ -19,7 +19,7 @@ public class TestListener extends PhoneStateListener {
 
 
 		if (signalStrength.isGsm()) {
-			//convert to dBm
+			//convert to dBm 
 			//http://www.etsi.org/deliver/etsi_ts/127000_127099/127007/08.05.00_60/ts_127007v080500p.pdf
 			//GSMsig = signalStrength.getGsmSignalStrength() * 2 - 113;
 			GSMsig = signalStrength.getGsmSignalStrength();

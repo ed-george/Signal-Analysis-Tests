@@ -27,12 +27,10 @@
         <activity android:name=".About" 
             android:label="@string/about_title"
             android:theme="@android:style/Theme.Dialog" ></activity>
-         
-         <activity android:name=".Prefs" 
-            android:label="@string/settings_title"></activity>
         
          <activity android:name=".Map" android:label="@string/map_name"  android:screenOrientation="portrait"></activity>
          <activity android:name=".ReadDB" android:label="@string/db_label"></activity>
+         <activity android:name=".SpeedTest" android:label="@string/st_title" android:screenOrientation="portrait"></activity>
          <uses-library android:name="com.google.android.maps" />
         
     </application>

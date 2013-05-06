@@ -2,6 +2,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     
+     <item
+        android:id="@+id/mapbut3"
+        android:icon="@drawable/ant"
+        android:showAsAction="ifRoom"
+        android:title="Locate Basestation"/>
+    
     <item
         android:id="@+id/mapbut1"
         android:icon="@drawable/map"
@@ -13,11 +19,7 @@
         android:showAsAction="ifRoom"
         android:title="Satellite View"/>
     
-     <item
-        android:id="@+id/mapbut3"
-        android:icon="@drawable/ant"
-        android:showAsAction="ifRoom"
-        android:title="Locate Basestation"/>
+    
     
 
 </menu>

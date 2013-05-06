@@ -18,6 +18,7 @@
     <string name="settings_title">Signal Analysis Settings</string>
     <string name="settings_shortcut">s</string>
     
+    <string name="st_title">Speed Test</string>
     <string name="db_label">Access Mast Data</string>
     <string name="readJ">Find Masts&#8230;</string>
     <string name="readResult">Database Results</string>
@@ -25,7 +26,7 @@
     <string name="test_title">Test Title</string>
     <string name="a">On</string>
     <string name="b">Off</string>
-    
+    <string name="lbl_speed">Take Speed Test</string>
     <string name="gps_title">Use fine GPS tracking</string>
     <string name="gps_summary">Use more a precise GPS service for tracking</string>
     

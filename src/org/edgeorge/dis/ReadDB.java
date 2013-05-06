@@ -22,9 +22,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ReadDB extends Activity {
+	//Min distance needed to move before allow new request from database
 	private static final int MIN_DIST = 20;
 	private TextView textView;
+	//URL of PHP pages
 	private String url = "http://houseready.co.uk/json.php";
+	//Tags of JSON elements
 	private static final String LOCATION = "Locations";
 	private static final String OPERATOR = "Operator";
 	private static final String LAT = "Latitude";
@@ -34,15 +37,16 @@ public class ReadDB extends Activity {
 
 	JSONArray locations = null;
 
+	//current location
 	private double lat;
 	private double lon;
+	//previous location
 	private double _lat = -1000; //previous
 	private double _lon = -1000; //previous
 	private boolean firstRun = false;
 
 	private LocationListener loc_listener;
 	private LocationManager locationManager;
-	/** Called when the activity is first created. */
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

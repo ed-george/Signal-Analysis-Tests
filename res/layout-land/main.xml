@@ -31,10 +31,9 @@
         android:text="@string/db_label"
         
         />
+     
+     
         </TableRow>
-        
-        
-        
         <TableRow>
             <Button 
         android:id="@+id/exit_button"
